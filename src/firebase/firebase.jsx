@@ -233,26 +233,28 @@ export const getRutinasPorArea = async (area) => {
 export const getRutinasPorAreaYUsuario = async (area, userId) => {
   try {
     const rutinasRef = collection(db, "rutinas");
-    // Consulta que filtra por área y por el ID del usuario
     const q = query(
       rutinasRef,
       where("area", "==", area),
       where("userId", "==", userId)
     );
-
     const querySnapshot = await getDocs(q);
-    const rutinas = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
 
+    const rutinas = [];
+    querySnapshot.forEach((doc) => {
+      rutinas.push({ id: doc.id, ...doc.data() });
+    });
+
+    console.log(
+      `Rutinas encontradas para ${area} y usuario ${userId}:`,
+      rutinas
+    );
     return rutinas;
   } catch (error) {
-    console.error("Error al obtener las rutinas por área y usuario:", error);
-    return [];
+    console.error("Error al obtener rutinas por área y usuario:", error);
+    throw error;
   }
 };
-
 // Función para guardar o quitar una rutina de los favoritos del usuario
 
 // Función para guardar o quitar una rutina de los favoritos del usuario
@@ -288,4 +290,35 @@ export const toggleSaveRutina = async (rutinaId) => {
   } else {
     throw new Error("Rutina no encontrada.");
   }
+};
+
+// Función para obtener las rutinas subidas por un usuario específico
+export const getRutinasDeUsuario = async (userId) => {
+  if (!userId) {
+    throw new Error("No se proporcionó un ID de usuario válido.");
+  }
+
+  const rutinasRef = collection(db, "rutinas");
+  const q = query(rutinasRef, where("userId", "==", userId));
+
+  const rutinasSnapshot = await getDocs(q);
+
+  if (rutinasSnapshot.empty) {
+    throw new Error("No se encontraron rutinas para este usuario.");
+  }
+
+  // Obtenemos las rutinas y la información del usuario de la primera rutina
+  const rutinas = rutinasSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // Usamos la primera rutina para obtener el nombre y el email del usuario
+  const firstRutina = rutinas[2];
+  const userInfo = {
+    displayName: firstRutina.nombre, // Nombre del usuario que subió la rutina
+    email: firstRutina.email, // Email del usuario que subió la rutina
+  };
+
+  return { userInfo, rutinas };
 };

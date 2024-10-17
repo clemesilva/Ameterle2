@@ -28,6 +28,14 @@ function PerfilUsuario() {
     }
   }, []);
 
+  const handleCompartirPerfil = () => {
+    if (user) {
+      const url = `${window.location.origin}/perfil/${user.uid}/compartir`;
+      navigator.clipboard.writeText(url);
+      alert("¡Enlace copiado! Comparte este enlace: " + url);
+    }
+  };
+
   return (
     <div className="p-6 bg-neutral-900 mt-10">
       <h1 className="text-3xl font-bold mb-4 text-yellow-300">Mi Perfil</h1>
@@ -57,6 +65,16 @@ function PerfilUsuario() {
         >
           Rutinas Guardadas
         </Link>
+      </div>
+
+      {/* Botón de compartir perfil */}
+      <div className="mb-8">
+        <button
+          onClick={handleCompartirPerfil}
+          className="bg-yellow-300 text-neutral-800 font-bold py-2 px-4 rounded-lg border border-yellow-300 transition duration-300 hover:bg-yellow-400"
+        >
+          Compartir Perfil
+        </button>
       </div>
 
       {/* Rutinas del usuario */}

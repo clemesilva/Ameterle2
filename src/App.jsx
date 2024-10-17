@@ -22,7 +22,10 @@ import TroncoPrivado from "./pages/areaPrivada/TroncoPrivado.jsx";
 import PiernasPrivado from "./pages/areaPrivada/PiernasPrivado.jsx";
 import FullPrivado from "./pages/areaPrivada/FullPrivado.jsx";
 import MovilidadPrivado from "./pages/areaPrivada/MovilidadPrivado.jsx";
-import RutinasGuardadas from "./pages/areaPrivada/RutinasGuardadas.jsx";
+import RutinasGuardadas from "./pages/areaPrivada/RutinasGuardadas.jsx"; // Importa RutinasGuardadas
+import PerfilPublico from "./pages/area/PerfilPublico.jsx";
+import RoutinesCompartir from "./pages/AreaCompartirPerfil/RoutinesCompartir.jsx";
+import RoutinesCompartirArea from "./pages/AreaCompartirPerfil/RoutinesCompartirArea.jsx";
 
 function App() {
   return (
@@ -89,7 +92,25 @@ function App() {
                 path="/mis-rutinas/movilidadActivacion"
                 element={<MovilidadPrivado />}
               />
-              <Route path="/rutinas-guardadas" element={<RutinasGuardadas />} />
+              {/* Ruta de rutinas guardadas */}
+              <Route
+                path="/rutinas-guardadas"
+                element={
+                  <RequireAuth>
+                    <RutinasGuardadas />
+                  </RequireAuth>
+                }
+              />
+
+              {/* Rutas para compartir perfil y áreas */}
+              <Route
+                path="/perfil/:userId/compartir"
+                element={<RoutinesCompartir />}
+              />
+              <Route
+                path="/perfil/:userId/:area"
+                element={<RoutinesCompartirArea />}
+              />
             </Routes>
           </div>
           <Footer1 />
