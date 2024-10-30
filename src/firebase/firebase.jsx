@@ -15,6 +15,8 @@ import {
   arrayUnion,
   arrayRemove,
   addDoc,
+  deleteDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -47,11 +49,33 @@ googleProvider.setCustomParameters({
   prompt: "select_account",
 });
 
-// Autenticación con Google Popup y Redirect
-export const signInWithGooglePopup = () =>
-  signInWithPopup(auth, googleProvider);
-export const signInWithGoogleRedirect = () =>
-  signInWithRedirect(auth, googleProvider);
+export const signInWithGooglePopup = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+
+    // Guardar o actualizar la información del usuario en Firestore
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(
+      userRef,
+      {
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+        lastLogin: serverTimestamp(),
+        savedRoutines: [],
+      },
+      { merge: true }
+    );
+
+    return user;
+  } catch (error) {
+    console.error("Error en signInWithGooglePopup:", error);
+    throw error;
+  }
+};
 
 // Función para crear un usuario en Firestore
 export const createUserDocumentFromAuth = async (
@@ -60,20 +84,23 @@ export const createUserDocumentFromAuth = async (
 ) => {
   if (!userAuth) return;
 
-  const userDocRef = doc(db, "users", userAuth.uid);
-  const userSnapshot = await getDoc(userDocRef);
+  const userDocRef = doc(db, "users", userAuth.uid); // Referencia al documento del usuario
+  const userSnapshot = await getDoc(userDocRef); // Obtenemos el snapshot del usuario
 
   if (!userSnapshot.exists()) {
-    const { displayName, email } = userAuth;
-    const createdAt = new Date();
+    const { displayName, email } = userAuth; // Obtenemos displayName y email del usuario autenticado
+    const createdAt = new Date(); // Fecha de creación
+    const userId = userAuth.uid; // El userId será el UID de Firebase
 
     try {
+      // Si el usuario no existe, lo creamos con el siguiente objeto
       await setDoc(userDocRef, {
         displayName,
         email,
         createdAt,
-        savedRoutines: [],
-        ...additionalInformation,
+        userId, // Agregamos el campo userId
+        savedRoutines: [], // Iniciamos con una lista vacía de rutinas guardadas
+        ...additionalInformation, // Cualquier información adicional
       });
     } catch (error) {
       console.error("Error al crear el usuario", error.message);
@@ -99,6 +126,16 @@ export const addSensacion = async (sensacionText) => {
   });
 };
 
+export const deleteSensacion = async (sensacionId) => {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("Debes estar autenticado para eliminar una sensación.");
+  }
+
+  const sensacionRef = doc(db, "sensaciones", sensacionId);
+  await deleteDoc(sensacionRef);
+};
+
 // Función para obtener sensaciones por usuario
 export const getSensationsByUser = async () => {
   const user = auth.currentUser;
@@ -110,7 +147,10 @@ export const getSensationsByUser = async () => {
   const q = query(sensacionesRef, where("userId", "==", user.uid));
 
   const querySnapshot = await getDocs(q);
-  const sensaciones = querySnapshot.docs.map((doc) => doc.data());
+  const sensaciones = querySnapshot.docs.map((doc) => ({
+    id: doc.id, // Añadimos el ID del documento
+    ...doc.data(),
+  }));
 
   return sensaciones;
 };
@@ -231,11 +271,15 @@ export const getRutinasPorArea = async (area) => {
 
 // Función para obtener las rutinas filtradas por área y usuario autenticado EN MI PERFIIIIL
 export const getRutinasPorAreaYUsuario = async (area, userId) => {
+  console.log("area y user id", area, userId);
   try {
+    const areaCapitalizada =
+      area.charAt(0).toUpperCase() + area.slice(1).toLowerCase();
+
     const rutinasRef = collection(db, "rutinas");
     const q = query(
       rutinasRef,
-      where("area", "==", area),
+      where("area", "==", areaCapitalizada),
       where("userId", "==", userId)
     );
     const querySnapshot = await getDocs(q);
@@ -247,7 +291,7 @@ export const getRutinasPorAreaYUsuario = async (area, userId) => {
 
     console.log(
       `Rutinas encontradas para ${area} y usuario ${userId}:`,
-      rutinas
+      rutinas // Eliminado el console.log anidado
     );
     return rutinas;
   } catch (error) {
@@ -321,4 +365,15 @@ export const getRutinasDeUsuario = async (userId) => {
   };
 
   return { userInfo, rutinas };
+};
+
+// Función para actualizar una sensación
+export const updateSensacion = async (sensacionId, nuevoTexto) => {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("Debes estar autenticado para editar una sensación.");
+  }
+
+  const sensacionRef = doc(db, "sensaciones", sensacionId);
+  await updateDoc(sensacionRef, { sensacion: nuevoTexto });
 };

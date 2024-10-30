@@ -1,5 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import {
+  getDoc,
+  doc,
+  collection,
+  query,
+  where,
+  limit,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "../../firebase/firebase";
 
 const RoutineCard = ({ title, description, to }) => (
   <Link
@@ -18,11 +28,59 @@ const RoutineCard = ({ title, description, to }) => (
 
 const RoutinesCompartir = () => {
   const { userId } = useParams();
+  const [displayName, setDisplayName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const cargarDisplayName = async () => {
+    try {
+      setLoading(true);
+      // Primero intentamos obtener del documento de usuario
+      const userRef = doc(db, "users", userId);
+      const userSnapshot = await getDoc(userRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        setDisplayName(userData.displayName);
+      } else {
+        // Si no existe en users, intentamos obtener de las rutinas
+        const rutinasRef = collection(db, "rutinas");
+        const q = query(rutinasRef, where("userId", "==", userId), limit(1));
+        const rutinasSnapshot = await getDocs(q);
+
+        if (!rutinasSnapshot.empty) {
+          const primerRutina = rutinasSnapshot.docs[0].data();
+          setDisplayName(primerRutina.nombre || "Usuario");
+        } else {
+          setError("No se encontró información del usuario.");
+        }
+      }
+    } catch (err) {
+      console.error("Error al cargar el usuario:", err);
+      setError("Error al cargar la información del usuario.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      cargarDisplayName();
+    }
+  }, [userId]);
+
+  if (loading) {
+    return <div className="text-yellow-100">Cargando...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <div className="p-6 bg-neutral-800 mt-10">
       <h1 className="text-3xl font-bold mb-4 text-yellow-100">
-        Rutinas compartidas
+        Rutinas compartidas de {displayName}
       </h1>
       <p className="text-lg text-white mb-8">
         Explora las rutinas compartidas por este usuario.

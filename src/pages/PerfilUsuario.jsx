@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { auth } from "../firebase/firebase"; // Asegúrate de importar la instancia de autenticación
+import { auth, storage } from "../firebase/firebase"; // Importa Firebase auth y storage
+import { updateProfile } from "firebase/auth"; // Para actualizar el perfil del usuario
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Para subir archivos a Storage
 import { Link } from "react-router-dom";
 
 const RoutineCardPrivate = ({ title, description, to }) => (
@@ -7,7 +9,7 @@ const RoutineCardPrivate = ({ title, description, to }) => (
     to={to}
     className="block relative rounded-lg overflow-hidden text-neutral-800 cursor-pointer transform transition-transform duration-300 hover:scale-105 border border-yellow-300"
     style={{
-      background: "linear-gradient(to right, #4b5563, #1f2937)", // Degradado de tonos oscuros
+      background: "linear-gradient(to right, #4b5563, #1f2937)",
     }}
   >
     <div className="relative p-6 z-10">
@@ -18,15 +20,43 @@ const RoutineCardPrivate = ({ title, description, to }) => (
 );
 
 function PerfilUsuario() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(auth.currentUser); // Obtener el usuario actual de Firebase
+  const [photoURL, setPhotoURL] = useState(user?.photoURL); // Manejar la foto del usuario
+  const [uploading, setUploading] = useState(false); // Estado para manejar la subida
 
-  // Obtener la información del usuario al montar el componente
-  useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      setUser(currentUser); // Guardamos los datos del usuario autenticado
+  // Subir la imagen seleccionada y actualizar el perfil
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0]; // Obtener el archivo seleccionado
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      // Subir la imagen a Firebase Storage
+      const storageRef = ref(storage, `profile_pictures/${user.uid}`);
+      await uploadBytes(storageRef, file);
+
+      // Obtener la URL de descarga de la imagen subida
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Actualizar la foto de perfil en Firebase Authentication
+      await updateProfile(user, { photoURL: downloadURL });
+
+      // Actualizar la foto de perfil en la UI
+      setPhotoURL(downloadURL);
+
+      setUploading(false);
+      alert("Foto de perfil actualizada con éxito.");
+    } catch (error) {
+      console.error("Error al subir la imagen:", error);
+      alert("Hubo un error al subir la foto.");
+      setUploading(false);
     }
-  }, []);
+  };
+
+  const handleClick = () => {
+    // Abrir el diálogo de selección de archivos
+    document.getElementById("fileInput").click();
+  };
 
   const handleCompartirPerfil = () => {
     if (user) {
@@ -37,7 +67,7 @@ function PerfilUsuario() {
   };
 
   return (
-    <div className="p-6 bg-neutral-900 mt-10">
+    <div className="p-6 mt-10">
       <h1 className="text-3xl font-bold mb-4 text-yellow-300">Mi Perfil</h1>
       <p className="text-lg text-yellow-100 mb-8">
         Aquí puedes ver y gestionar tus rutinas personales.
@@ -45,17 +75,27 @@ function PerfilUsuario() {
 
       {/* Información del usuario */}
       <div className="flex items-center space-x-4 mb-6">
+        {/* Foto de perfil del usuario */}
         <img
-          src={user?.photoURL || "https://via.placeholder.com/80"} // Mostramos la foto del usuario o un placeholder
+          src={photoURL || "https://via.placeholder.com/80"} // Mostrar la foto actual o un placeholder
           alt="Perfil"
-          className="w-20 h-20 rounded-full border-4 border-yellow-300"
+          className="w-20 h-20 rounded-full border-4 border-yellow-300 cursor-pointer"
+          onClick={handleClick} // Abrir el selector de archivos al hacer clic
+        />
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          style={{ display: "none" }} // Ocultar el input
+          onChange={handleImageUpload}
         />
         <div>
           <p className="text-2xl font-semibold text-yellow-100">
-            {user?.displayName || "Usuario"} {/* Nombre del usuario */}
+            {user?.displayName || "Usuario"}{" "}
+            {/* Mostrar el nombre del usuario */}
           </p>
           <p className="text-yellow-300">{user?.email}</p>{" "}
-          {/* Email del usuario */}
+          {/* Mostrar el email */}
         </div>
 
         {/* Botón para acceder a las Rutinas Guardadas */}
@@ -66,6 +106,10 @@ function PerfilUsuario() {
           Rutinas Guardadas
         </Link>
       </div>
+
+      {uploading && (
+        <p className="text-yellow-300">Actualizando foto de perfil...</p>
+      )}
 
       {/* Botón de compartir perfil */}
       <div className="mb-8">

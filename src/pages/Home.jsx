@@ -24,8 +24,8 @@ export default function Home() {
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="hidden sm:mb-8 sm:flex sm:justify-center">
             <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-yellow-300 ring-1 ring-yellow-200 hover:ring-yellow-300">
-              Próximos eventos de entrenamiento.{" "}
-              <a href="#" className="font-semibold text-yellow-400">
+              Observa tus rutinas guardadas y comparte tu perfil{" "}
+              <a href="/perfil" className="font-semibold text-yellow-400">
                 <span aria-hidden="true" className="absolute inset-0" />
                 Ver más <span aria-hidden="true">&rarr;</span>
               </a>
@@ -36,8 +36,8 @@ export default function Home() {
               Bienvenido a AmeTerle
             </h1>
             <p className="mt-6 text-lg leading-8 text-yellow-300">
-              Todo lo que necesitas para compartir y expl tus entrenamientos en
-              un solo lugar.
+              Todo lo que necesitas para para guardar y compartir tus
+              entrenamientos en un solo lugar.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link

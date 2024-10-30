@@ -39,7 +39,7 @@ function SubirRutina() {
     <Card
       color="transparent"
       shadow={false}
-      className="bg-neutral-800 p-8 rounded-lg border-2 border-neutral-800 max-w-md mx-auto mt-10" // Cambia el ancho máximo a un valor menor
+      className="bg-neutral-800 p-8 rounded-lg border-2 border-neutral-800 max-w-md mx-auto mt-12" // Cambia el ancho máximo a un valor menor
     >
       <Typography variant="h4" color="white" className="text-center">
         Subir Rutina

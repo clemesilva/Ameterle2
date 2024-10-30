@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { getSensationsByUser, auth, addSensacion } from "../firebase/firebase";
+import {
+  getSensationsByUser,
+  auth,
+  addSensacion,
+  deleteSensacion,
+} from "../firebase/firebase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import Footer1 from "../components/Footer";
 
 function Sensations() {
   const [sensaciones, setSensaciones] = useState([]);
@@ -35,6 +43,16 @@ function Sensations() {
     }
   };
 
+  const handleDelete = async (sensacionId) => {
+    try {
+      await deleteSensacion(sensacionId);
+      cargarSensaciones();
+    } catch (error) {
+      console.error("Error al eliminar sensación:", error);
+      setError("Hubo un error al eliminar la sensación.");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-neutral-800">
       <div className="flex-grow p-6 mt-10">
@@ -67,10 +85,10 @@ function Sensations() {
         </form>
         <div className="space-y-6 mt-5 max-h-[300px] overflow-y-scroll">
           {sensaciones.length > 0 ? (
-            sensaciones.map((sensacion, index) => (
+            sensaciones.map((sensacion) => (
               <div
-                key={index}
-                className="p-4 rounded-lg border border-neutral-600 text-yellow-100 bg-neutral-700"
+                key={sensacion.id}
+                className="p-4 rounded-lg border border-neutral-600 text-yellow-100 bg-neutral-700 relative"
               >
                 <p>{sensacion.sensacion}</p>
                 <p className="text-xs text-neutral-400">
@@ -78,6 +96,12 @@ function Sensations() {
                     sensacion.createdAt.seconds * 1000
                   ).toLocaleString()}
                 </p>
+                <button
+                  onClick={() => handleDelete(sensacion.id)}
+                  className="absolute top-2 right-2 text-yellow-100 hover:text-yellow-200 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faTrash} className="text-lg" />
+                </button>
               </div>
             ))
           ) : (
@@ -85,6 +109,7 @@ function Sensations() {
           )}
         </div>
       </div>
+      <Footer1 />
     </div>
   );
 }
