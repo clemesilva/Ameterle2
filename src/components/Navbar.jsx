@@ -3,6 +3,7 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider"; // Para gestionar autenticación
+import logo2 from "./logo2.jpg";
 
 const navigation = [
   { name: "Inicio", href: "/" },
@@ -27,8 +28,8 @@ export default function Navbar() {
             <span className="sr-only">AmèTerle</span>
             <img
               alt="AmèTerle Logo"
-              src="https://tailwindui.com/plus/img/logos/mark.svg?color=yellow&shade=100"
-              className="h-8 w-auto"
+              src={logo2} // Reemplaza la URL por el logo importado
+              className="h-16 w-auto opacity-75" // Añade opacity-75 para la transparencia
             />
           </Link>
         </div>
@@ -71,12 +72,12 @@ export default function Navbar() {
               >
                 Log in <span aria-hidden="true">&rarr;</span>
               </Link>
-              <Link
+              {/* <Link
                 to="/signup"
                 className="ml-4 text-sm font-semibold leading-6 text-yellow-100 hover:text-yellow-200"
               >
                 Sign Up
-              </Link>
+              </Link> */}
             </>
           )}
         </div>
@@ -141,12 +142,12 @@ export default function Navbar() {
                     >
                       Log in
                     </Link>
-                    <Link
+                    {/* <Link
                       to="/signup"
                       className="-mx-3 mt-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-yellow-100 hover:bg-gray-700"
                     >
                       Sign Up
-                    </Link>
+                    </Link> */}
                   </>
                 )}
               </div>

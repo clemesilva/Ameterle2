@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import logo2 from "./logo2.jpg";
 
 function Footer1() {
   return (
@@ -10,14 +11,9 @@ function Footer1() {
             to="/"
             className="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse"
           >
-            <img
-              src="https://your-logo-url.com"
-              className="h-8"
-              alt="App Logo"
-            />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-yellow-100">
-              Nose q wea pasa que los aprieto y no sucede nada
-            </span>
+            <img src={logo2} className="h-24 opacity-75" alt="App Logo" />{" "}
+            {/* Agrega opacity-75 */}
+            <span className="self-center text-2xl font-semibold whitespace-nowrap text-yellow-100"></span>
           </Link>
           <ul className="flex flex-wrap items-center mb-6 text-sm font-medium text-yellow-100 sm:mb-0">
             <li>
@@ -44,9 +40,9 @@ function Footer1() {
         </div>
         <hr className="my-6 border-yellow-100 sm:mx-auto" />
         <span className="block text-sm text-yellow-100 sm:text-center">
-          © 2023{" "}
+          © 2024{" "}
           <Link to="/" className="hover:underline">
-            FitnessApp™
+            Ameterle
           </Link>
           . Todos los derechos reservados.
         </span>

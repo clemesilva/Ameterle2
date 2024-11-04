@@ -109,7 +109,6 @@ function Sensations() {
           )}
         </div>
       </div>
-      <Footer1 />
     </div>
   );
 }

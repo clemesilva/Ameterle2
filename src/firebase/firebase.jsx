@@ -366,14 +366,3 @@ export const getRutinasDeUsuario = async (userId) => {
 
   return { userInfo, rutinas };
 };
-
-// Función para actualizar una sensación
-export const updateSensacion = async (sensacionId, nuevoTexto) => {
-  const user = auth.currentUser;
-  if (!user) {
-    throw new Error("Debes estar autenticado para editar una sensación.");
-  }
-
-  const sensacionRef = doc(db, "sensaciones", sensacionId);
-  await updateDoc(sensacionRef, { sensacion: nuevoTexto });
-};
