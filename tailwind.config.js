@@ -3,8 +3,11 @@ const withMT = require("@material-tailwind/react/utils/withMT");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  mode: "jit",
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
