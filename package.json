@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npx tailwindcss -o ./dist/output.css --minify",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
