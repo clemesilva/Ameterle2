@@ -59,7 +59,7 @@ function SubirRutina() {
             type="text"
             required
             size="lg"
-            placeholder="Nicolas Pirozzi"
+            placeholder="Lionel Messi"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             className="!border-yellow-100 focus:!border-yellow-100 text-yellow-100 "
@@ -106,7 +106,7 @@ function SubirRutina() {
           </Typography>
           <textarea
             required
-            placeholder="Ej: Rutina dura, tiene artos isquitibial y cardio, me demoré aprox 30 minutos y esta ideal de tiempo"
+            placeholder="Ej: Rutina dura, trabaja arto isquiotibiales y cuadricep, me demoré aprox 30 minutos y esta ideal de tiempo"
             value={descripcionRutina}
             onChange={(e) => setDescripcionRutina(e.target.value)}
             className="!border-yellow-100 focus:!border-yellow-100 text-yellow-100 bg-neutral-700 p-2 rounded"
