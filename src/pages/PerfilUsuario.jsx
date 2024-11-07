@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { auth, storage } from "../firebase/firebase"; // Importa Firebase auth y storage
 import { updateProfile } from "firebase/auth"; // Para actualizar el perfil del usuario
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Para subir archivos a Storage
@@ -31,17 +31,11 @@ function PerfilUsuario() {
 
     setUploading(true);
     try {
-      // Subir la imagen a Firebase Storage
       const storageRef = ref(storage, `profile_pictures/${user.uid}`);
       await uploadBytes(storageRef, file);
 
-      // Obtener la URL de descarga de la imagen subida
       const downloadURL = await getDownloadURL(storageRef);
-
-      // Actualizar la foto de perfil en Firebase Authentication
       await updateProfile(user, { photoURL: downloadURL });
-
-      // Actualizar la foto de perfil en la UI
       setPhotoURL(downloadURL);
 
       setUploading(false);
@@ -54,65 +48,79 @@ function PerfilUsuario() {
   };
 
   const handleClick = () => {
-    // Abrir el diálogo de selección de archivos
     document.getElementById("fileInput").click();
   };
 
   const handleCompartirPerfil = () => {
     if (user) {
       const url = `${window.location.origin}/perfil/${user.uid}/compartir`;
-      navigator.clipboard.writeText(url);
-      alert("¡Enlace copiado! Comparte este enlace: " + url);
+
+      // Intenta copiar con navigator.clipboard.writeText()
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          alert("¡Enlace copiado! Comparte este enlace: " + url);
+        })
+        .catch(() => {
+          // Método de respaldo usando document.execCommand()
+          const textArea = document.createElement("textarea");
+          textArea.value = url;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+          alert("¡Enlace copiado! Comparte este enlace: " + url);
+        });
     }
   };
 
   return (
-    <div className="p-6 mt-10">
-      <h1 className="text-3xl font-bold mb-4 text-yellow-300">Mi Perfil</h1>
-      <p className="text-lg text-yellow-100 mb-8">
+    <div className="p-6 mt-10 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4 text-yellow-300 text-center lg:text-left">
+        Mi Perfil
+      </h1>
+      <p className="text-lg text-yellow-100 mb-8 text-center lg:text-left">
         Aquí puedes ver y gestionar tus rutinas personales.
       </p>
 
-      {/* Información del usuario */}
-      <div className="flex items-center space-x-4 mb-6">
-        {/* Foto de perfil del usuario */}
-        <img
-          src={photoURL || "https://via.placeholder.com/80"} // Mostrar la foto actual o un placeholder
-          alt="Perfil"
-          className="w-20 h-20 rounded-full border-4 border-yellow-300 cursor-pointer"
-          onClick={handleClick} // Abrir el selector de archivos al hacer clic
-        />
-        <input
-          type="file"
-          id="fileInput"
-          accept="image/*"
-          style={{ display: "none" }} // Ocultar el input
-          onChange={handleImageUpload}
-        />
-        <div>
-          <p className="text-2xl font-semibold text-yellow-100">
-            {user?.displayName || "Usuario"}{" "}
-            {/* Mostrar el nombre del usuario */}
-          </p>
-          <p className="text-yellow-300">{user?.email}</p>{" "}
-          {/* Mostrar el email */}
+      {/* Información del usuario y botones */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center mb-6">
+        <div className="flex justify-center lg:justify-start">
+          <img
+            src={photoURL || "https://via.placeholder.com/80"}
+            alt="Perfil"
+            className="w-20 h-20 rounded-full border-4 border-yellow-300 cursor-pointer"
+            onClick={handleClick}
+          />
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleImageUpload}
+          />
         </div>
-
-        {/* Botón para acceder a las Rutinas Guardadas */}
+        <div className="text-center lg:text-left">
+          <p className="text-2xl font-semibold text-yellow-100">
+            {user?.displayName || "Usuario"}
+          </p>
+          <p className="text-yellow-300">{user?.email}</p>
+        </div>
         <Link
           to="/rutinas-guardadas"
-          className="ml-auto bg-yellow-100 text-neutral-800 py-2 px-4 rounded-lg hover:bg-yellow-200 transition-all"
+          className="bg-yellow-100 text-neutral-800 py-2 px-4 rounded-lg hover:bg-yellow-200 transition-all max-w-max mx-auto lg:ml-auto"
         >
           Rutinas Guardadas
         </Link>
       </div>
 
       {uploading && (
-        <p className="text-yellow-300">Actualizando foto de perfil...</p>
+        <p className="text-yellow-300 text-center lg:text-left">
+          Actualizando foto de perfil...
+        </p>
       )}
 
-      {/* Botón de compartir perfil */}
-      <div className="mb-8">
+      <div className="mb-8 text-center lg:text-left">
         <button
           onClick={handleCompartirPerfil}
           className="bg-yellow-300 text-neutral-800 font-bold py-2 px-4 rounded-lg border border-yellow-300 transition duration-300 hover:bg-yellow-400"
@@ -121,8 +129,8 @@ function PerfilUsuario() {
         </button>
       </div>
 
-      {/* Rutinas del usuario */}
-      <div className="space-y-6">
+      {/* Rutinas del usuario en grid */}
+      <div className="grid grid-cols-1  gap-6">
         <RoutineCardPrivate
           title="PIERNAS"
           description="Tus rutinas personales para piernas."

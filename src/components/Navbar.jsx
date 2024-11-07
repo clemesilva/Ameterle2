@@ -17,6 +17,11 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, handleLogout } = useAuth(); // Accedemos al estado de autenticación y función de logout
 
+  // Función para cerrar el menú móvil
+  const handleCloseMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className="absolute inset-x-0 top-0 z-50">
       <nav
@@ -92,13 +97,9 @@ export default function Navbar() {
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-neutral-800 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <Link to="/" className="-m-1.5 p-1.5">
-              <span className="sr-only">AmèTerle</span>
-              <img
-                alt="AmèTerle Logo"
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=yellow&shade=100"
-                className="h-8 w-auto"
-              />
+            <Link to="/" className="-m-1.5 p-1.5" onClick={handleCloseMenu}>
+              <span className="sr-only">AmeTerle</span>
+              <img alt="AmèTerle Logo" src={logo2} className="h-8 w-auto" />
             </Link>
             <button
               type="button"
@@ -118,6 +119,7 @@ export default function Navbar() {
                   <Link
                     key={item.name}
                     to={item.href}
+                    onClick={handleCloseMenu} // Cierra el menú al hacer clic en cada enlace
                     className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-yellow-100 hover:bg-gray-700"
                   >
                     {item.name}
@@ -129,7 +131,10 @@ export default function Navbar() {
               <div className="py-6">
                 {user ? (
                   <button
-                    onClick={handleLogout}
+                    onClick={() => {
+                      handleLogout();
+                      handleCloseMenu(); // Cierra el menú después de cerrar sesión
+                    }}
                     className="w-full text-left block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-yellow-100 hover:bg-gray-700"
                   >
                     Log out
@@ -138,12 +143,14 @@ export default function Navbar() {
                   <>
                     <Link
                       to="/login"
+                      onClick={handleCloseMenu} // Cierra el menú al hacer clic en "Log in"
                       className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-yellow-100 hover:bg-gray-700"
                     >
                       Log in
                     </Link>
                     {/* <Link
                       to="/signup"
+                      onClick={handleCloseMenu} // Cierra el menú al hacer clic en "Sign Up"
                       className="-mx-3 mt-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-yellow-100 hover:bg-gray-700"
                     >
                       Sign Up
